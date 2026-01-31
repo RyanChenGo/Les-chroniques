@@ -45,8 +45,19 @@
       font-size: 14px;
       margin-top: 30px;
     }
+    .search-box {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  z-index: 1000;
+}
   </style>
 </head>
+<input type="text" id="search" placeholder="Rechercher…" class="search-box">
 <h1>Bienvenue à LES CHRONIQUES !!!</h1>
 <h2>Journal</h2>
 <p><strong>Grand Changement:</strong>Les Chroniques devient un journal hebdomadaire</p>
@@ -176,6 +187,15 @@
 <a href="app-release.apk">
   Cliquer ici pour le télécharger
 </a>
+<script>
+document.getElementById("search").addEventListener("input", function () {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll("a").forEach(a => {
+    const text = a.textContent.toLowerCase();
+    a.style.display = text.includes(q) ? "" : "none";
+  });
+});
+</script>
 <p style="text-align: center; color: gray;">
   ©ChenRyan Les Chroniques 2025 - Tous droits réservés - Reproduction interdite
 </p>
