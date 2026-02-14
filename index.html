@@ -1,0 +1,167 @@
+<style>
+
+/* ===== RESET ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ===== BODY LAYOUT ===== */
+body {
+    font-family: Georgia, serif;
+    background: #f4f4f2;
+    color: #111;
+    text-align: center;
+    padding: 80px 20px;
+    position: relative;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+/* ===== TYPOGRAPHY ===== */
+h1 {
+    font-size: 4rem;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+}
+
+h2 {
+    font-size: 1rem;
+    letter-spacing: 5px;
+    color: #777;
+    margin-bottom: 40px;
+}
+
+p {
+    max-width: 600px;
+    margin: 20px auto;
+    line-height: 1.6;
+}
+
+a {
+    display: inline-block;
+    margin: 15px;
+    text-decoration: none;
+    color: #111;
+    border-bottom: 1px solid #111;
+    transition: 0.3s;
+}
+
+a:hover {
+    letter-spacing: 2px;
+}
+
+/* ===== MEDIA ===== */
+audio, video {
+    margin: 30px auto;
+    display: block;
+}
+
+/* ===== FLOATING NEWSPAPER EFFECT ===== */
+
+/* 左上 */
+body::before {
+    content: "Le 12 Janvier 2025\A Débat: Les filles sont-elles plus calmes ?";
+    white-space: pre-line;
+    position: absolute;
+    top: 10%;
+    left: 8%;
+    width: 180px;
+    background: white;
+    border: 1px solid #ddd;
+    padding: 15px;
+    font-size: 0.75rem;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    animation: float1 8s ease-in-out infinite;
+}
+
+/* 右下 */
+body::after {
+    content: "Le 3 Mars 2025\A Chronique scientifique\A Les marées expliquées";
+    white-space: pre-line;
+    position: absolute;
+    bottom: 12%;
+    right: 10%;
+    width: 180px;
+    background: white;
+    border: 1px solid #ddd;
+    padding: 15px;
+    font-size: 0.75rem;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    animation: float2 10s ease-in-out infinite;
+}
+
+/* 额外两张用 h1 / footer 伪元素 */
+h1::before {
+    content: "Le 18 Février 2025\A Balado spécial";
+    white-space: pre-line;
+    position: absolute;
+    top: 25%;
+    right: 5%;
+    width: 150px;
+    background: white;
+    border: 1px solid #ddd;
+    padding: 12px;
+    font-size: 0.7rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    animation: float3 7s ease-in-out infinite;
+}
+
+footer::after {
+    content: "Le 20 Avril 2025\A Jack & Smith";
+    white-space: pre-line;
+    position: absolute;
+    bottom: 25%;
+    left: 6%;
+    width: 150px;
+    background: white;
+    border: 1px solid #ddd;
+    padding: 12px;
+    font-size: 0.7rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    animation: float4 9s ease-in-out infinite;
+}
+
+/* ===== FLOAT ANIMATIONS ===== */
+@keyframes float1 {
+    0% { transform: translateY(0) rotate(-3deg); }
+    50% { transform: translateY(-25px) rotate(2deg); }
+    100% { transform: translateY(0) rotate(-3deg); }
+}
+
+@keyframes float2 {
+    0% { transform: translateY(0) rotate(2deg); }
+    50% { transform: translateY(-30px) rotate(-2deg); }
+    100% { transform: translateY(0) rotate(2deg); }
+}
+
+@keyframes float3 {
+    0% { transform: translateY(0) rotate(1deg); }
+    50% { transform: translateY(-20px) rotate(-2deg); }
+    100% { transform: translateY(0) rotate(1deg); }
+}
+
+@keyframes float4 {
+    0% { transform: translateY(0) rotate(-1deg); }
+    50% { transform: translateY(-22px) rotate(3deg); }
+    100% { transform: translateY(0) rotate(-1deg); }
+}
+
+footer {
+    margin-top: 80px;
+    font-size: 0.8rem;
+    color: #888;
+}
+
+</style>
+<h1>BIENVENUE À LES CHRONIQUES</h1>
+<p style="text-align:center; font-size: 24px>
+  Nous sommes en train de construire le nouveau site web Les Chroniques
+</p>
+<br>
+<footer>
+  <p style="color: gray;">
+  ©ChenRyan Les Chroniques 2026 - BuildOurSite™
+</p>
+</footer>
