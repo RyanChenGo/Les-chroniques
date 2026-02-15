@@ -75,14 +75,14 @@ audio, video {
 
 <script>
 
-// ===============================
+// =====================
 // 1️⃣ 全局变量
-// ===============================
+// =====================
 let journals = [];
 
-// ===============================
+// =====================
 // 2️⃣ 加载 JSON
-// ===============================
+// =====================
 fetch('journal/index.json')
   .then(response => {
       if (!response.ok) {
@@ -91,29 +91,34 @@ fetch('journal/index.json')
       return response.json();
   })
   .then(data => {
-      journals = data;
+      journals = data.map(j => ({
+          date: j.date,
+          url: j.url.normalize("NFC") // 🔥 强制统一 Unicode 格式
+      }));
+      console.log("Journals loaded:", journals);
   })
   .catch(error => {
       document.getElementById("message").textContent =
           "Erreur de chargement des journaux.";
   });
 
-// ===============================
-// 3️⃣ 回车触发
-// ===============================
+// =====================
+// 3️⃣ 回车支持
+// =====================
+document.getElementById("searchButton")
+  .addEventListener("click", searchJournal);
+
 document.getElementById("searchInput")
-  .addEventListener("keypress", function(event) {
-      if (event.key === "Enter") {
+  .addEventListener("keydown", function(e) {
+      if (e.key === "Enter") {
+          e.preventDefault();
           searchJournal();
       }
   });
 
-document.getElementById("searchButton")
-  .addEventListener("click", searchJournal);
-
-// ===============================
-// 4️⃣ 法语月份映射
-// ===============================
+// =====================
+// 4️⃣ 法语月份
+// =====================
 const monthsFR = {
   "janvier":"01",
   "février":"02",
@@ -132,25 +137,17 @@ const monthsFR = {
   "decembre":"12"
 };
 
-// ===============================
-// 5️⃣ 输入标准化
-// ===============================
+// =====================
+// 5️⃣ 日期标准化
+// =====================
 function normalizeInput(input) {
 
     input = input.trim().toLowerCase();
 
-    // 格式 YYYY-MM-DD
     if (/^\d{4}-\d{2}-\d{2}$/.test(input)) {
         return input;
     }
 
-    // 格式 DD-MM-YYYY
-    if (/^\d{2}-\d{2}-\d{4}$/.test(input)) {
-        const parts = input.split("-");
-        return parts[2] + "-" + parts[1] + "-" + parts[0];
-    }
-
-    // 格式 15 février 2026
     const parts = input.split(" ");
     if (parts.length === 3) {
         const day = parts[0].padStart(2,"0");
@@ -165,33 +162,29 @@ function normalizeInput(input) {
     return input;
 }
 
-// ===============================
-// 6️⃣ 主搜索函数
-// ===============================
+// =====================
+// 6️⃣ 搜索主逻辑
+// =====================
 function searchJournal() {
 
     const rawInput = document.getElementById("searchInput").value;
     const message = document.getElementById("message");
-
     message.textContent = "";
 
     if (!rawInput.trim()) return;
 
-    const normalized = normalizeInput(rawInput);
+    const normalizedDate = normalizeInput(rawInput);
 
-    const match = journals.find(j => j.date === normalized);
+    const match = journals.find(j => j.date === normalizedDate);
 
     if (match) {
 
-        // 关键修复：逐段编码，解决组合重音问题
-        const encodedURL = match.url
-            .split('/')
-            .map(part => encodeURIComponent(part))
-            .join('/');
-
-        window.location.href = encodedURL;
+        // 🔥 关键：完整标准化 + 编码
+        const safeURL = encodeURI(match.url.normalize("NFC"));
+        window.location.href = safeURL;
 
     } else {
+
         message.textContent =
             "Désolé, il n'y a pas de journal pour cette journée...";
     }
