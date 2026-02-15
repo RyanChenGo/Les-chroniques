@@ -75,36 +75,12 @@ audio, video {
 
 <script>
 
-// =====================
-// 1️⃣ 全局变量
-// =====================
 let journals = [];
 
-// =====================
-// 2️⃣ 加载 JSON
-// =====================
 fetch('journal/index.json')
-  .then(response => {
-      if (!response.ok) {
-          throw new Error("JSON not found");
-      }
-      return response.json();
-  })
-  .then(data => {
-      journals = data.map(j => ({
-          date: j.date,
-          url: j.url.normalize("NFC") // 🔥 强制统一 Unicode 格式
-      }));
-      console.log("Journals loaded:", journals);
-  })
-  .catch(error => {
-      document.getElementById("message").textContent =
-          "Erreur de chargement des journaux.";
-  });
+  .then(res => res.json())
+  .then(data => journals = data);
 
-// =====================
-// 3️⃣ 回车支持
-// =====================
 document.getElementById("searchButton")
   .addEventListener("click", searchJournal);
 
@@ -116,30 +92,14 @@ document.getElementById("searchInput")
       }
   });
 
-// =====================
-// 4️⃣ 法语月份
-// =====================
 const monthsFR = {
-  "janvier":"01",
-  "février":"02",
-  "fevrier":"02",
-  "mars":"03",
-  "avril":"04",
-  "mai":"05",
-  "juin":"06",
-  "juillet":"07",
-  "août":"08",
-  "aout":"08",
-  "septembre":"09",
-  "octobre":"10",
-  "novembre":"11",
-  "décembre":"12",
-  "decembre":"12"
+  "janvier":"01","février":"02","fevrier":"02",
+  "mars":"03","avril":"04","mai":"05","juin":"06",
+  "juillet":"07","août":"08","aout":"08",
+  "septembre":"09","octobre":"10",
+  "novembre":"11","décembre":"12","decembre":"12"
 };
 
-// =====================
-// 5️⃣ 日期标准化
-// =====================
 function normalizeInput(input) {
 
     input = input.trim().toLowerCase();
@@ -153,35 +113,29 @@ function normalizeInput(input) {
         const day = parts[0].padStart(2,"0");
         const month = monthsFR[parts[1]];
         const year = parts[2];
-
-        if (month) {
-            return year + "-" + month + "-" + day;
-        }
+        if (month) return year + "-" + month + "-" + day;
     }
 
     return input;
 }
 
-// =====================
-// 6️⃣ 搜索主逻辑
-// =====================
 function searchJournal() {
 
-    const rawInput = document.getElementById("searchInput").value;
+    const input = document.getElementById("searchInput").value;
     const message = document.getElementById("message");
     message.textContent = "";
 
-    if (!rawInput.trim()) return;
+    if (!input.trim()) return;
 
-    const normalizedDate = normalizeInput(rawInput);
-
-    const match = journals.find(j => j.date === normalizedDate);
+    const normalized = normalizeInput(input);
+    const match = journals.find(j => j.date === normalized);
 
     if (match) {
 
-        // 🔥 关键：完整标准化 + 编码
-        const safeURL = encodeURI(match.url.normalize("NFC"));
-        window.location.href = safeURL;
+        // 🔥 使用浏览器 URL 解析器（不手动编码）
+        const fullURL = new URL(match.url, window.location.origin + "/Les-chroniques/");
+
+        window.location.href = fullURL.href;
 
     } else {
 
