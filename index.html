@@ -69,17 +69,18 @@ audio, video {
 <h2>Rechercher le Journal</h2>
 
 <input id="searchInput" placeholder="Ex: 2026-02-15 ou 15 février 2026">
-<button id="searchButton">Rechercher</button>
+<button id="viewButton">Voir</button>
+<button id="downloadButton">Télécharger</button>
 
 <p id="message" style="color:red;"></p>
 
 <script>
 
-// =======================
-// 1️⃣ 加载 JSON
-// =======================
 let journals = [];
 
+// ========================
+// 1️⃣ 加载 JSON
+// ========================
 fetch('./journal/index.json')
   .then(res => res.json())
   .then(data => {
@@ -87,23 +88,26 @@ fetch('./journal/index.json')
       console.log("Journals loaded:", journals);
   });
 
-// =======================
-// 2️⃣ 事件监听
-// =======================
-document.getElementById("searchButton")
-  .addEventListener("click", searchJournal);
+// ========================
+// 2️⃣ 事件绑定
+// ========================
+document.getElementById("viewButton")
+  .addEventListener("click", () => searchJournal(false));
+
+document.getElementById("downloadButton")
+  .addEventListener("click", () => searchJournal(true));
 
 document.getElementById("searchInput")
   .addEventListener("keydown", function(e) {
       if (e.key === "Enter") {
           e.preventDefault();
-          searchJournal();
+          searchJournal(false);
       }
   });
 
-// =======================
+// ========================
 // 3️⃣ 法语月份
-// =======================
+// ========================
 const monthsFR = {
   "janvier":"01","février":"02","fevrier":"02",
   "mars":"03","avril":"04","mai":"05","juin":"06",
@@ -112,9 +116,9 @@ const monthsFR = {
   "novembre":"11","décembre":"12","decembre":"12"
 };
 
-// =======================
-// 4️⃣ 日期转换
-// =======================
+// ========================
+// 4️⃣ 日期标准化
+// ========================
 function normalizeInput(input) {
 
     input = input.trim().toLowerCase();
@@ -134,10 +138,10 @@ function normalizeInput(input) {
     return input;
 }
 
-// =======================
+// ========================
 // 5️⃣ 主逻辑
-// =======================
-function searchJournal() {
+// ========================
+function searchJournal(forceDownload) {
 
     const input = document.getElementById("searchInput").value;
     const message = document.getElementById("message");
@@ -148,18 +152,31 @@ function searchJournal() {
     const normalized = normalizeInput(input);
     const match = journals.find(j => j.date === normalized);
 
-    if (match) {
-
-        // 🔥 自动构造绝对 URL
-        const base = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
-        const fullURL = new URL(match.url, base);
-
-        window.location.href = fullURL.href;
-
-    } else {
-
+    if (!match) {
         message.textContent =
             "Désolé, il n'y a pas de journal pour cette journée...";
+        return;
+    }
+
+    // 自动识别当前项目路径
+    const base = window.location.origin + 
+                 window.location.pathname.replace(/\/[^\/]*$/, '/');
+
+    const fullURL = new URL(match.url, base).href;
+
+    if (forceDownload) {
+        // 强制下载并保留扩展名
+        const fileName = match.url.split("/").pop();
+
+        const a = document.createElement("a");
+        a.href = fullURL;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    } else {
+        // 浏览模式
+        window.location.href = fullURL;
     }
 }
 
