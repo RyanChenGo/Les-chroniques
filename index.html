@@ -66,10 +66,86 @@ audio, video {
 </head>
 <body>
 <h1>BIENVENUE À LES CHRONIQUES</h1>
-<p style="text-align:center; font-size: 24px">
-  Nous sommes en train de construire le nouveau site web Les Chroniques
-</p>
+<h2>Rechercher le Journal</h2>
+
+<input id="searchInput" placeholder="Ex: 2026-02-15 ou 15 février 2026">
+<button onclick="searchJournal()">Rechercher</button>
+
+<p id="message" style="color:red;"></p>
+
+<script>
+let journals = [];
+
+// 读取 index.json
+fetch('journal/index.json')
+  .then(res => res.json())
+  .then(data => journals = data)
+  .catch(() => {
+    document.getElementById("message").textContent =
+      "Erreur de chargement des journaux.";
+  });
+
+// 支持回车
+document.getElementById("searchInput").addEventListener("keypress", function(e){
+    if (e.key === "Enter") searchJournal();
+});
+
+// 法语月份
+const monthsFR = {
+  "janvier":"01","février":"02","fevrier":"02","mars":"03",
+  "avril":"04","mai":"05","juin":"06","juillet":"07",
+  "août":"08","aout":"08","septembre":"09",
+  "octobre":"10","novembre":"11","décembre":"12","decembre":"12"
+};
+
+function normalizeInput(input) {
+  input = input.trim().toLowerCase();
+
+  // 2026-02-15
+  if (/^\d{4}-\d{2}-\d{2}$/.test(input)) return input;
+
+  // 15-02-2026
+  if (/^\d{2}-\d{2}-\d{4}$/.test(input)) {
+    const [d,m,y] = input.split("-");
+    return `${y}-${m}-${d}`;
+  }
+
+  // 15 février 2026
+  const parts = input.split(" ");
+  if (parts.length === 3 && monthsFR[parts[1]]) {
+    const d = parts[0].padStart(2,"0");
+    const m = monthsFR[parts[1]];
+    const y = parts[2];
+    return `${y}-${m}-${d}`;
+  }
+
+  return input;
+}
+
+function searchJournal() {
+
+    const rawInput = document.getElementById("searchInput").value;
+    const message = document.getElementById("message");
+    message.textContent = "";
+
+    if (!rawInput.trim()) return;
+
+    const normalized = normalizeInput(rawInput);
+
+    const exact = journals.find(j => j.date === normalized);
+
+    if (exact) {
+        // 自动编码文件名（支持空格+é）
+        window.location.href = encodeURI(exact.url);
+    } else {
+        message.textContent =
+          "Désolé, il n'y a pas de journal pour cette journée...";
+    }
+}
+</script>
 <br>
+<h2>Audio</h2>
+<h2>Vidéo</h2>
 <footer>
   <p style="color: gray;">
   ©ChenRyan Les Chroniques 2026 - BuildOurSite™
