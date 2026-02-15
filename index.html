@@ -69,79 +69,134 @@ audio, video {
 <h2>Rechercher le Journal</h2>
 
 <input id="searchInput" placeholder="Ex: 2026-02-15 ou 15 février 2026">
-<button onclick="searchJournal()">Rechercher</button>
+<button id="searchButton">Rechercher</button>
 
 <p id="message" style="color:red;"></p>
 
 <script>
+
+// ===============================
+// 1️⃣ 全局变量
+// ===============================
 let journals = [];
 
-// 读取 index.json
+// ===============================
+// 2️⃣ 加载 JSON
+// ===============================
 fetch('journal/index.json')
-  .then(res => res.json())
-  .then(data => journals = data)
-  .catch(() => {
-    document.getElementById("message").textContent =
-      "Erreur de chargement des journaux.";
+  .then(response => {
+      if (!response.ok) {
+          throw new Error("JSON not found");
+      }
+      return response.json();
+  })
+  .then(data => {
+      journals = data;
+  })
+  .catch(error => {
+      document.getElementById("message").textContent =
+          "Erreur de chargement des journaux.";
   });
 
-// 支持回车
-document.getElementById("searchInput").addEventListener("keypress", function(e){
-    if (e.key === "Enter") searchJournal();
-});
+// ===============================
+// 3️⃣ 回车触发
+// ===============================
+document.getElementById("searchInput")
+  .addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+          searchJournal();
+      }
+  });
 
-// 法语月份
+document.getElementById("searchButton")
+  .addEventListener("click", searchJournal);
+
+// ===============================
+// 4️⃣ 法语月份映射
+// ===============================
 const monthsFR = {
-  "janvier":"01","février":"02","fevrier":"02","mars":"03",
-  "avril":"04","mai":"05","juin":"06","juillet":"07",
-  "août":"08","aout":"08","septembre":"09",
-  "octobre":"10","novembre":"11","décembre":"12","decembre":"12"
+  "janvier":"01",
+  "février":"02",
+  "fevrier":"02",
+  "mars":"03",
+  "avril":"04",
+  "mai":"05",
+  "juin":"06",
+  "juillet":"07",
+  "août":"08",
+  "aout":"08",
+  "septembre":"09",
+  "octobre":"10",
+  "novembre":"11",
+  "décembre":"12",
+  "decembre":"12"
 };
 
+// ===============================
+// 5️⃣ 输入标准化
+// ===============================
 function normalizeInput(input) {
-  input = input.trim().toLowerCase();
 
-  // 2026-02-15
-  if (/^\d{4}-\d{2}-\d{2}$/.test(input)) return input;
+    input = input.trim().toLowerCase();
 
-  // 15-02-2026
-  if (/^\d{2}-\d{2}-\d{4}$/.test(input)) {
-    const [d,m,y] = input.split("-");
-    return `${y}-${m}-${d}`;
-  }
+    // 格式 YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(input)) {
+        return input;
+    }
 
-  // 15 février 2026
-  const parts = input.split(" ");
-  if (parts.length === 3 && monthsFR[parts[1]]) {
-    const d = parts[0].padStart(2,"0");
-    const m = monthsFR[parts[1]];
-    const y = parts[2];
-    return `${y}-${m}-${d}`;
-  }
+    // 格式 DD-MM-YYYY
+    if (/^\d{2}-\d{2}-\d{4}$/.test(input)) {
+        const parts = input.split("-");
+        return parts[2] + "-" + parts[1] + "-" + parts[0];
+    }
 
-  return input;
+    // 格式 15 février 2026
+    const parts = input.split(" ");
+    if (parts.length === 3) {
+        const day = parts[0].padStart(2,"0");
+        const month = monthsFR[parts[1]];
+        const year = parts[2];
+
+        if (month) {
+            return year + "-" + month + "-" + day;
+        }
+    }
+
+    return input;
 }
 
+// ===============================
+// 6️⃣ 主搜索函数
+// ===============================
 function searchJournal() {
 
     const rawInput = document.getElementById("searchInput").value;
     const message = document.getElementById("message");
+
     message.textContent = "";
 
     if (!rawInput.trim()) return;
 
     const normalized = normalizeInput(rawInput);
 
-    const exact = journals.find(j => j.date === normalized);
+    const match = journals.find(j => j.date === normalized);
 
-    if (exact) {
-        // 自动编码文件名（支持空格+é）
-        window.location.href = encodeURI(exact.url);
+    if (match) {
+
+        // 关键修复：逐段编码，解决组合重音问题
+        const encodedURL = match.url
+            .split('/')
+            .map(part => encodeURIComponent(part))
+            .join('/');
+
+        window.location.href = encodedURL;
+
     } else {
         message.textContent =
-          "Désolé, il n'y a pas de journal pour cette journée...";
+            "Désolé, il n'y a pas de journal pour cette journée...";
     }
 }
+
 </script>
 <br>
 <h2>Audio</h2>
