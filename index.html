@@ -75,12 +75,21 @@ audio, video {
 
 <script>
 
+// =======================
+// 1️⃣ 加载 JSON
+// =======================
 let journals = [];
 
-fetch('journal/index.json')
+fetch('./journal/index.json')
   .then(res => res.json())
-  .then(data => journals = data);
+  .then(data => {
+      journals = data;
+      console.log("Journals loaded:", journals);
+  });
 
+// =======================
+// 2️⃣ 事件监听
+// =======================
 document.getElementById("searchButton")
   .addEventListener("click", searchJournal);
 
@@ -92,6 +101,9 @@ document.getElementById("searchInput")
       }
   });
 
+// =======================
+// 3️⃣ 法语月份
+// =======================
 const monthsFR = {
   "janvier":"01","février":"02","fevrier":"02",
   "mars":"03","avril":"04","mai":"05","juin":"06",
@@ -100,6 +112,9 @@ const monthsFR = {
   "novembre":"11","décembre":"12","decembre":"12"
 };
 
+// =======================
+// 4️⃣ 日期转换
+// =======================
 function normalizeInput(input) {
 
     input = input.trim().toLowerCase();
@@ -119,6 +134,9 @@ function normalizeInput(input) {
     return input;
 }
 
+// =======================
+// 5️⃣ 主逻辑
+// =======================
 function searchJournal() {
 
     const input = document.getElementById("searchInput").value;
@@ -132,8 +150,9 @@ function searchJournal() {
 
     if (match) {
 
-        // 🔥 使用浏览器 URL 解析器（不手动编码）
-        const fullURL = new URL(match.url, window.location.origin + "/Les-chroniques/");
+        // 🔥 自动构造绝对 URL
+        const base = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
+        const fullURL = new URL(match.url, base);
 
         window.location.href = fullURL.href;
 
