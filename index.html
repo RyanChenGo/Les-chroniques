@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Les Chroniques</title>
+<meta charset="utf-8">
+<style>
+
+/* ===== RESET ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ===== BODY LAYOUT ===== */
+body {
+    font-family: Georgia, serif;
+    background: #f4f4f2;
+    color: #111;
+    text-align: center;
+    padding: 80px 20px;
+    position: relative;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+/* ===== TYPOGRAPHY ===== */
+h1 {
+    font-size: 4rem;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+}
+
+h2 {
+    font-size: 1rem;
+    letter-spacing: 5px;
+    color: #777;
+    margin-bottom: 40px;
+}
+
+p {
+    max-width: 600px;
+    margin: 20px auto;
+    line-height: 1.6;
+}
+
+a {
+    display: inline-block;
+    margin: 15px;
+    text-decoration: none;
+    color: #111;
+    border-bottom: 1px solid #111;
+    transition: 0.3s;
+}
+
+a:hover {
+    letter-spacing: 2px;
+}
+
+/* ===== MEDIA ===== */
+audio, video {
+    margin: 30px auto;
+    display: block;
+}
+</style>
+</head>
+<body>
+<h1>BIENVENUE À LES CHRONIQUES</h1>
+<h2>Rechercher le Journal</h2>
+
+<input id="searchInput" placeholder="Ex: 2026-02-15 ou 15 février 2026">
+<button id="viewButton">Voir</button>
+<button id="downloadButton">Télécharger</button>
+
+<p id="message" style="color:red;"></p>
+
+<script>
+
+let journals = [];
+
+// ========================
+// 1️⃣ 加载 JSON
+// ========================
+fetch('./journal/index.json')
+  .then(res => res.json())
+  .then(data => {
+      journals = data;
+      console.log("Journals loaded:", journals);
+  });
+
+// ========================
+// 2️⃣ 事件绑定
+// ========================
+document.getElementById("viewButton")
+  .addEventListener("click", () => searchJournal(false));
+
+document.getElementById("downloadButton")
+  .addEventListener("click", () => searchJournal(true));
+
+document.getElementById("searchInput")
+  .addEventListener("keydown", function(e) {
+      if (e.key === "Enter") {
+          e.preventDefault();
+          searchJournal(false);
+      }
+  });
+
+// ========================
+// 3️⃣ 法语月份
+// ========================
+const monthsFR = {
+  "janvier":"01","février":"02","fevrier":"02",
+  "mars":"03","avril":"04","mai":"05","juin":"06",
+  "juillet":"07","août":"08","aout":"08",
+  "septembre":"09","octobre":"10",
+  "novembre":"11","décembre":"12","decembre":"12"
+};
+
+// ========================
+// 4️⃣ 日期标准化
+// ========================
+function normalizeInput(input) {
+
+    input = input.trim().toLowerCase();
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(input)) {
+        return input;
+    }
+
+    const parts = input.split(" ");
+    if (parts.length === 3) {
+        const day = parts[0].padStart(2,"0");
+        const month = monthsFR[parts[1]];
+        const year = parts[2];
+        if (month) return year + "-" + month + "-" + day;
+    }
+
+    return input;
+}
+
+// ========================
+// 5️⃣ 主逻辑
+// ========================
+function searchJournal(forceDownload) {
+
+    const input = document.getElementById("searchInput").value;
+    const message = document.getElementById("message");
+    message.textContent = "";
+
+    if (!input.trim()) return;
+
+    const normalized = normalizeInput(input);
+    const match = journals.find(j => j.date === normalized);
+
+    if (!match) {
+        message.textContent =
+            "Désolé, il n'y a pas de journal pour cette journée...";
+        return;
+    }
+
+    // 自动识别当前项目路径
+    const base = window.location.origin + 
+                 window.location.pathname.replace(/\/[^\/]*$/, '/');
+
+    const fullURL = new URL(match.url, base).href;
+
+    if (forceDownload) {
+        // 强制下载并保留扩展名
+        const fileName = match.url.split("/").pop();
+
+        const a = document.createElement("a");
+        a.href = fullURL;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    } else {
+        // 浏览模式
+        window.location.href = fullURL;
+    }
+}
+
+</script>
+<br>
+<h2>Audio</h2>
+<details>
+<summary>Balado 15 Février 2026</summary>
+<audio controls>
+    <source src="audio/balado15fev.mp3" type="audio/mpeg">
+</audio>
+</details>
+<br>
+<details>
+    <summary>Balado 22 Février 2026</summary>
+    <audio controls>
+        <source src="audio/balado22fev2026.mp3" type="audio/mpeg">
+    </audio>
+</details>
+<br>
+<details>
+    <summary>Cliquer ici pour voir Introduction de Saison 2 , Balado !</summary>
+    <iframe src="https://archive.org/embed/les-chroniques-balado-saison-2" width="560" height="384" frameborder="0" webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen="">
+    </iframe>
+</details>
+<h2>Vidéo</h2>
+<details>
+    <summary>Vidéo - 1 Mars 2026</summary>
+    <iframe src="https://archive.org/embed/les-chroniques-1-mars-2026" width="560" height="384" frameborder="0" webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen>
+    </iframe>
+</details>
+<footer>
+<br>
+<h2>Journals payés</h2>
+<p style="color: red;">
+    Les journals payés sont seulement disponibles quand tu l'achètes en personne
+</p>
+<br>
+<footer>
+<p style="color: gray; text-align: center">
+  ©ChenRyan Les Chroniques 2025-2026 , Tous droits réservés
+</p>
+</footer>
+</body>
+</html>
