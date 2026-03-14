@@ -20,3 +20,6 @@ Les marques, titres et séries appartenant à Les Chroniques sont protégés.
 
 Pour toute demande d'autorisation :
 Les Chroniques
+
+Question ? 
+Appel +1 514-919-5891 ou envoyer un courriel à ryan2015dor@gmail.com ou ryan2015dor@hotmail.com(plus recommandé)
